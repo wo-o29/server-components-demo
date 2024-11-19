@@ -1,50 +1,44 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+import {Suspense, use} from 'react';
 
-import {Suspense} from 'react';
-
-import Note from './Note';
-import NoteList from './NoteList';
-import EditButton from './EditButton';
-import SearchField from './SearchField';
-import NoteSkeleton from './NoteSkeleton';
-import NoteListSkeleton from './NoteListSkeleton';
-
-export default function App({selectedId, isEditing, searchText}) {
+export default function App() {
   return (
-    <div className="main">
-      <section className="col sidebar">
-        <section className="sidebar-header">
-          <img
-            className="logo"
-            src="logo.svg"
-            width="22px"
-            height="20px"
-            alt=""
-            role="presentation"
-          />
-          <strong>React Notes</strong>
-        </section>
-        <section className="sidebar-menu" role="menubar">
-          <SearchField />
-          <EditButton noteId={null}>New</EditButton>
-        </section>
-        <nav>
-          <Suspense fallback={<NoteListSkeleton />}>
-            <NoteList searchText={searchText} />
-          </Suspense>
-        </nav>
-      </section>
-      <section key={selectedId} className="col note-viewer">
-        <Suspense fallback={<NoteSkeleton isEditing={isEditing} />}>
-          <Note selectedId={selectedId} isEditing={isEditing} />
+    <div>
+      <h1>메인 컴포넌트</h1>
+      <div style={{display: 'flex', gap: '100px'}}>
+        <Suspense fallback={<div>로딩중...</div>}>
+          <A userId={1} />
         </Suspense>
-      </section>
+        <B />
+      </div>
+    </div>
+  );
+}
+
+const fetchUser = async (userId) => {
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  const res = await fetch(
+    `https://jsonplaceholder.typicode.com/todos/${userId}`
+  );
+  const data = await res.json();
+  console.log(data);
+  return data;
+};
+
+function A({userId}) {
+  const todoData = use(fetchUser(userId));
+  return (
+    <div>
+      <h2>A 컴포넌트</h2>
+      <p>유저ID: {todoData.userId}</p>
+      <p>제목: {todoData.title}</p>
+    </div>
+  );
+}
+
+function B() {
+  return (
+    <div>
+      <h2>B 컴포넌트</h2>
     </div>
   );
 }
