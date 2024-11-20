@@ -28,7 +28,7 @@ app.use(express.json());
 
 app
   .listen(PORT, () => {
-    console.log(`서버 가동 포트 번호: ${PORT}...`);
+    console.log(`서버 가동 포트 번호: ${PORT}`);
   })
   .on('error', function(error) {
     if (error.syscall !== 'listen') {
@@ -74,11 +74,19 @@ app.get(
 
 async function renderReactTree(res) {
   await waitForWebpack();
-  const stream = renderToPipeableStream(React.createElement(ReactApp));
+  const manifest = readFileSync(
+    path.resolve(__dirname, '../build/react-client-manifest.json'),
+    'utf8'
+  );
+  const moduleMap = JSON.parse(manifest);
+  const stream = renderToPipeableStream(
+    React.createElement(ReactApp),
+    moduleMap
+  );
 
   const originalWrite = res.write;
   res.write = function(chunk, encoding, callback) {
-    console.log(Buffer.from(chunk).toString('utf-8'));
+    console.log(Buffer.from(chunk).toString());
     return originalWrite.call(this, chunk, encoding, callback);
   };
 
@@ -98,9 +106,9 @@ async function waitForWebpack() {
       readFileSync(path.resolve(__dirname, '../build/index.html'));
       return;
     } catch (err) {
-      console.log(
-        'Could not find webpack build output. Will retry in a second...'
-      );
+      // console.log(
+      //   'Could not find webpack build output. Will retry in a second...'
+      // );
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }

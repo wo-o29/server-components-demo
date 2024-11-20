@@ -1,4 +1,5 @@
 import {Suspense, use} from 'react';
+import ClientComponents from './ClientComponents';
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Suspense fallback={<div>로딩중...</div>}>
           <TodoComponents userId={2} />
         </Suspense>
+        <ClientComponents />
       </div>
     </div>
   );
